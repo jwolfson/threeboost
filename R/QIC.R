@@ -8,7 +8,7 @@ QIC.bin <- function(Y,X,b) {
   }
   
   eta <- X%*%b
-  p <- sum(b!=0)
+  p <- sum(b!=0)-1
   
   Q <- sum(Y*log(mu.Y(eta)/(1 - mu.Y(eta))) + log(1 - mu.Y(eta)))
   -2*Q + 2*p
@@ -23,7 +23,7 @@ QIC.lin <- function(Y,X,b) {
   }
   
   eta <- X%*%b
-  p <- sum(b!=0)
+  p <- sum(b!=0)-1
   
   Q <- sum(((Y - mu.Y(eta))^2)/-2)
   -2*Q + 2*p
@@ -38,7 +38,7 @@ QIC.pois <- function(Y,X,b) {
   }
   
   eta <- X%*%b
-  p <- sum(b!=0)
+  p <- sum(b!=0)-1
   
   Q <- sum((Y*log(mu.Y(eta))) - mu.Y(eta))
   -2*Q + 2*p

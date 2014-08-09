@@ -31,7 +31,7 @@
 #' before \code{maxit} is reached. The user can request this feature by setting \code{stop.rule} to one of the following options:
 #' 
 #' \itemize{
-#' \item \code{"on.repeat"}: Sometimes, ThrEEBoost will alternate between stepping on the same two directions, usually indicating numerical problems. Setting \code{stop.rule="on.repeat"} will terminate the algorithm if this happens.
+#' \item \code{"on.repeat"}: Sometimes, ThrEEBoost will alternate between stepping on the same two directions, usually indicating numerical problems. Setting \code{stop.rule="on.oscillate"} will terminate the algorithm if this happens.
 #' \item \code{"pct.change"}: Stop if, for conseuctive iterations, the sum of the magnitudes of the elements of the estimating equation changes by < 1\%. 
 #' }
 #' 
@@ -87,9 +87,12 @@
 #' 
 threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itertrack=FALSE,reportinterval=1,stop.rule="on.repeat",thresh=1) {
   
+  Y <- as.vector(Y)
+  X <- as.matrix(X)
+  
   if(thresh < 0 | thresh > 1) { stop('ERROR: Threshold must be between 0 and 1.')}
   
-  b.new <- b.init
+  b.new <- b.old <- b.init
   ee.val <- rep(0,length(b.new))
   it <- 1
   
@@ -101,10 +104,11 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
   }
   
   while(it <= maxit) {
+    b.old2 <- b.old
     b.old <- b.new
     ee.val.old <- ee.val
     
-    ee.val <- round(EE.fn(Y,scale.X,b.old),6) ## To counter numerical problems in the next step
+    ee.val <- round(EE.fn(Y,scale.X,b.old),8) ## To counter numerical problems in the next step
     three.val <- (abs(ee.val)>=thresh*max(abs(ee.val))) ## Threshold the estimating equation
     b.new <- b.old + eps*sign(ee.val)*three.val
     
@@ -112,13 +116,12 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
       cat(paste("----------------\n Iteration ",it,"\n Stepping on direction ",which.max(abs(ee.val)),"\n Max abs element of EE vector: ",max(abs(ee.val)),"\n"))
       print(rbind(b.new[which(b.new!=0)],which(b.new!=0)))
     }
-    if(stop.rule=="on.repeat" & all(b.new==b.old)) {
-      print("Iterations stopped due to repeating values.")
+    if(stop.rule=="on.repeat" & ( all(b.new==b.old2) | all(b.new==b.old))) {
+      print("Iterations stopped due to oscillating values.")
       print(ee.val)
       B[it,] <- b.new
       return(B)
     }
-    
     if(stop.rule=="pct.change" & (sum(abs(ee.val))-sum(abs(ee.val.old)))/sum(abs(ee.val.old)) < 0.01) {
       print("Iterations stopped due to < 1% change in sum of absolute EE elements")
       B[it,] <- b.new
