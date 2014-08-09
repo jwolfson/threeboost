@@ -4,14 +4,13 @@
 \alias{ee.GEE.aux}
 \title{GEE estimating functions}
 \usage{
-ee.GEE(Y, X, b, mu.Y = function(eta) {     eta }, v.Y = function(eta) {    
-  rep(1, length(eta)) }, aux = NULL, id = 1:length(Y),
+ee.GEE(Y, X, b, mu.Y, g.Y, v.Y, aux, id = 1:length(Y),
   uid = sort(unique(id)), rows.indivs = lapply(uid, function(j) {    
   which(id == j) }), corstr = "ind")
 
-ee.GEE.aux(Y, X, b, mu.Y = function(eta) {     eta }, v.Y = function(eta) { 
-     rep(1, length(eta)) }, id = 1:length(Y), uid = sort(unique(id)),
-  rows.indivs = lapply(uid, function(j) {     which(id == j) }))
+ee.GEE.aux(Y, X, b, mu.Y, g.Y, v.Y, id = 1:length(Y),
+  uid = sort(unique(id)), rows.indivs = lapply(uid, function(j) {    
+  which(id == j) }))
 }
 \arguments{
 \item{Y}{Vector of (correlated) outcomes}
@@ -21,6 +20,8 @@ ee.GEE.aux(Y, X, b, mu.Y = function(eta) {     eta }, v.Y = function(eta) {
 \item{b}{Vector of coefficients}
 
 \item{mu.Y}{Mean function}
+
+\item{g.Y}{Link function (inverse of mean function)}
 
 \item{v.Y}{Variance function}
 

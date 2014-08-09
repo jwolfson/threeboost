@@ -13,7 +13,7 @@
 #' @param maxit Maximum number of iterations. Default is 1000.
 #' @param itertrack Indicates whether or not diagnostic information should be printed out at each iteration. Default is \code{FALSE}.
 #' @param reportinterval If \code{itertrack} is \code{TRUE}, how many iterations the algorithm should wait between each diagnostic report.
-#' @param stop.rule Rule for stopping the iterations before \code{maxit} is reached. Possible values are \code{"on.repeat"}, \code{"abs.change"}, and \code{"pct.change"}.
+#' @param stop.rule Rule for stopping the iterations before \code{maxit} is reached. Possible values are \code{"on.repeat"} and \code{"pct.change"}.
 #' See 'Details' for more information.
 #' @param thresh Threshold parameter for ThrEEBoost.
 #' 
@@ -64,11 +64,16 @@
 #' } else { stop('Need mvtnorm package to generate correlated example data.') }
 #' 
 #' ## Define the Gaussian GEE estimating function with independence working correlation
-#' EE.fn.ind <- function(Y,X,b) { 
+#' mu.Lin <- function(eta){eta}
+#' g.Lin <- function(m){m}
+#' v.Lin <- function(eta){rep(1,length(eta))}
+#'
+#'  EE.fn.ind <- function(Y,X,b) { 
 #'  ee.GEE(Y,X,b,
-#'  mu.Y=function(eta){eta},
-#'  v.Y=function(eta){rep(1,length(eta))},
-#'  aux=ee.GEE.aux(Y,X,b,indiv.index,mu.Y=function(eta){eta},v.Y=function(eta){rep(1,length(eta))}),
+#'  mu.Y=mu.Lin,
+#'  g.Y=g.Lin,
+#'  v.Y=v.Lin,
+#'  aux=function(...) { ee.GEE.aux(...,mu.Y=mu.Lin,g.Y=g.Lin,v.Y=v.Lin) },
 #'  id=indiv.index,
 #'  corstr="ind")
 #' }

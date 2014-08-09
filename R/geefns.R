@@ -5,8 +5,8 @@
 #' @param Y Vector of (correlated) outcomes
 #' @param X Matrix of predictors
 #' @param b Vector of coefficients
-#' @param b0 Intercept
 #' @param mu.Y Mean function
+#' @param g.Y Link function (inverse of mean function)
 #' @param v.Y Variance function
 #' @param aux Auxiliary function for coputing (co)variance parameters
 #' @param id Vector of cluster IDs
@@ -16,7 +16,7 @@
 ee.GEE <- function(Y,X,b,mu.Y,g.Y,v.Y,aux,id=1:length(Y),uid=sort(unique(id)),
                    rows.indivs=lapply(uid,function(j) { which(id==j)}),corstr="ind") {
 
-  aux.par <- aux(Y,X,b,id)
+  aux.par <- aux(Y=Y,X=X,b=b,id=id)
   a <- aux.par[1]
   phi <- aux.par[2]
   b <- c(aux.par[3],b)
@@ -53,7 +53,7 @@ ee.GEE <- function(Y,X,b,mu.Y,g.Y,v.Y,aux,id=1:length(Y),uid=sort(unique(id)),
   L <- lapply(rows.indivs,contrib.indiv,b=b)
   
   contribs <- rowSums(do.call("cbind",L))
-  return(contribs[-1])
+  return(contribs[-1]) ## Don't return the element of the intercept
 }
 
 #' @describeIn ee.GEE
@@ -85,7 +85,7 @@ ee.GEE.aux <- function(Y,X,b,mu.Y,g.Y,v.Y,id=1:length(Y),uid=sort(unique(id)),
   mu.hat <- mu.Y(eta)
   b0 <- mean(g.Y(mu.hat) - as.vector(X[,-1]%*%b[-1]))
   
-  return(c(alpha,phi,b0)) ## We return alpha/phi since this is what we need in the original equation
+  return(c(alpha,phi,b0))
   
 }
 

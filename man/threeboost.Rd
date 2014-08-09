@@ -24,7 +24,7 @@ threeboost(Y, X, EE.fn, b.init = rep(0, ncol(X)), eps = 0.01,
 
 \item{reportinterval}{If \code{itertrack} is \code{TRUE}, how many iterations the algorithm should wait between each diagnostic report.}
 
-\item{stop.rule}{Rule for stopping the iterations before \code{maxit} is reached. Possible values are \code{"on.repeat"}, \code{"abs.change"}, and \code{"pct.change"}.
+\item{stop.rule}{Rule for stopping the iterations before \code{maxit} is reached. Possible values are \code{"on.repeat"} and \code{"pct.change"}.
 See 'Details' for more information.}
 
 \item{thresh}{Threshold parameter for ThrEEBoost.}
@@ -47,7 +47,7 @@ An additional step (e.g. model scoring, cross-validated estimate of prediction e
 before \code{maxit} is reached. The user can request this feature by setting \code{stop.rule} to one of the following options:
 
 \itemize{
-\item \code{"on.repeat"}: Sometimes, ThrEEBoost will alternate between stepping on the same two directions, usually indicating numerical problems. Setting \code{stop.rule="on.repeat"} will terminate the algorithm if this happens.
+\item \code{"on.repeat"}: Sometimes, ThrEEBoost will alternate between stepping on the same two directions, usually indicating numerical problems. Setting \code{stop.rule="on.oscillate"} will terminate the algorithm if this happens.
 \item \code{"pct.change"}: Stop if, for conseuctive iterations, the sum of the magnitudes of the elements of the estimating equation changes by < 1\%.
 }
 }
@@ -80,11 +80,16 @@ Y <- mvtnorm::rmvnorm(1,mean=mn.Y,sigma=sig.Y)
 } else { stop('Need mvtnorm package to generate correlated example data.') }
 
 ## Define the Gaussian GEE estimating function with independence working correlation
-EE.fn.ind <- function(Y,X,b) {
+mu.Lin <- function(eta){eta}
+g.Lin <- function(m){m}
+v.Lin <- function(eta){rep(1,length(eta))}
+
+ EE.fn.ind <- function(Y,X,b) {
  ee.GEE(Y,X,b,
- mu.Y=function(eta){eta},
- v.Y=function(eta){rep(1,length(eta))},
- aux=ee.GEE.aux(Y,X,b,indiv.index,mu.Y=function(eta){eta},v.Y=function(eta){rep(1,length(eta))}),
+ mu.Y=mu.Lin,
+ g.Y=g.Lin,
+ v.Y=v.Lin,
+ aux=function(...) { ee.GEE.aux(...,mu.Y=mu.Lin,g.Y=g.Lin,v.Y=v.Lin) },
  id=indiv.index,
  corstr="ind")
 }

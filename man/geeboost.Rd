@@ -73,7 +73,6 @@ Y.pois <- rpois(length(Y),lambda=exp(mn.Y)) ## Correlated Poisson outcomes
 
 ## Run EEBoost (w/ indep working correlation)
 results.lin <- geeboost(Y,X,id=indiv.index,maxit=1000)
-## Not run
 \dontrun{
  results.bin <- geeboost(Y.bin,X,id=indiv.index,family="binomial",maxit=1000)
  results.pois <- geeboost(Y.pois,X,id=indiv.index,family="poisson",maxit=1000,traceplot=TRUE)

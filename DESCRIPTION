@@ -2,8 +2,8 @@ Package: threeboost
 Type: Package
 Title: Thresholded variable selection and prediction based on estimating
     equations
-Version: 1.0
-Date: 2014-06-18
+Version: 1.1
+Date: 2014-08-09
 Author: Julian Wolfson and Christopher Miller
 Maintainer: Julian Wolfson <julianw@umn.edu>
 Description: This package implements a thresholded version of the EEBoost
