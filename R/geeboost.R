@@ -118,7 +118,7 @@ geeboost <- function(Y,X,id=1:length(Y),family="gaussian",corstr="ind",traceplot
   })
   final.model <- coefmat[which.min(QICs),]
   
-  if(traceplot==TRUE) { coef_traceplot(coefmat) }
+  if(traceplot==TRUE) { coef_traceplot(coefmat[,-1]) } ## Exclude the intercept in the traceplot
   
   return(list(coefmat=coefmat,QICs=QICs,final.model=final.model))
 } 

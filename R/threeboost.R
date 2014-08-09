@@ -117,15 +117,14 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
       print(rbind(b.new[which(b.new!=0)],which(b.new!=0)))
     }
     if(stop.rule=="on.repeat" & ( all(b.new==b.old2) | all(b.new==b.old))) {
-      print("Iterations stopped due to oscillating values.")
-      print(ee.val)
+      print(paste("Stopped due to oscillating values at iteration",it))
       B[it,] <- b.new
-      return(B)
+      return(B[1:it,])
     }
     if(stop.rule=="pct.change" & (sum(abs(ee.val))-sum(abs(ee.val.old)))/sum(abs(ee.val.old)) < 0.01) {
-      print("Iterations stopped due to < 1% change in sum of absolute EE elements")
+      print(paste("Stopped due to < 1% change in sum of absolute EE elements at iteration",it))
       B[it,] <- b.new
-      return(B)
+      return(B[1:it,])
     }
     B[it,] <- b.new
     it <- it+1
