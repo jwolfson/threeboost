@@ -32,7 +32,7 @@
 #' 
 #' \itemize{
 #' \item \code{"on.repeat"}: Sometimes, ThrEEBoost will alternate between stepping on the same two directions, usually indicating numerical problems. Setting \code{stop.rule="on.oscillate"} will terminate the algorithm if this happens.
-#' \item \code{"pct.change"}: Stop if, for conseuctive iterations, the sum of the magnitudes of the elements of the estimating equation changes by < 1\%. 
+#' \item \code{"pct.change"}: Stop if, for consecutive iterations, the sum of the magnitudes of the elements of the estimating equation changes by < 1\%. 
 #' }
 #' 
 #' @examples
@@ -108,6 +108,8 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
     stop("Covariate matrix cannot be scaled due to degenerate covariate.")
   }
   
+  tryjump <- FALSE
+  
   while(it <= maxit) {
     b.old2 <- b.old
     b.old <- b.new
@@ -115,16 +117,16 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
     
     ee.val <- round(EE.fn(Y,scale.X,b.old),8) ## To counter numerical problems in the next step
     three.val <- (abs(ee.val)>=thresh*max(abs(ee.val))) ## Threshold the estimating equation
-    b.new <- b.old + eps*sign(ee.val)*three.val
+    b.new <- b.old + runif(1,0.5,1.5)*eps*sign(ee.val)*three.val ## Added a randomizer to step length
     
     if(itertrack==TRUE & (it %% reportinterval==0)) {
       cat(paste("----------------\n Iteration ",it,"\n Stepping on direction ",which.max(abs(ee.val)),"\n Max abs element of EE vector: ",max(abs(ee.val)),"\n"))
       print(rbind(b.new[which(b.new!=0)],which(b.new!=0)))
     }
     if(stop.rule=="on.repeat" & ( all(b.new==b.old2) | all(b.new==b.old))) {
-      print(paste("Stopped due to oscillating values at iteration",it))
-      B[it,] <- b.new
-      return(B[1:it,])
+        print(paste("Stopped due to oscillating values at iteration",it))
+        B[it,] <- b.new
+        return(B[1:it,])
     }
     if(stop.rule=="pct.change" & (sum(abs(ee.val))-sum(abs(ee.val.old)))/sum(abs(ee.val.old)) < 0.01) {
       print(paste("Stopped due to < 1% change in sum of absolute EE elements at iteration",it))
