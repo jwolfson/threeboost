@@ -102,8 +102,13 @@ threeboost <- function(Y,X,EE.fn,b.init=rep(0,ncol(X)),eps=0.01,maxit=1000,itert
   it <- 1
   
   B <- matrix(data=NA,nrow=maxit,ncol=length(b.init))
-  scale.X <- scale(X)
-  
+  scale.X <- apply(X, 2, function(x) {
+    if(sd(x, na.rm=TRUE) == 0){ 
+      return(x - mean(x, na.rm=TRUE)) ## Should be just zeros
+    } else {
+      return( (x - mean(x, na.rm=TRUE)) / sd(x, na.rm=TRUE) )
+    } })
+
   if(any(is.nan(scale.X))) { 
     stop("Covariate matrix cannot be scaled due to degenerate covariate.")
   }
